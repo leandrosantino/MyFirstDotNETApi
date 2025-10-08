@@ -2,6 +2,14 @@ namespace ApiTeste.Models;
 
 public class WeatherForecast
 {
+    public WeatherForecast(WeatherForecastCreateDTO dto)
+    {
+        Date = dto.Date;
+        TemperatureC = dto.TemperatureC;
+        Summary = dto.Summary;
+    }
+
+    public WeatherForecast() { }
 
     public int Id { get; set; }
     public DateOnly Date { get; set; }
@@ -10,34 +18,14 @@ public class WeatherForecast
     public string? Summary { get; set; }
 }
 
-public record WeatherForecastUpdateDTO(
-    DateOnly? Date,
-    int? TemperatureC,
-    string? Summary
-)
-{
-    public WeatherForecast MergeModel(WeatherForecast model)
-    {
-        if (this.Date != null) model.Date = (DateOnly)this.Date;
-        if (this.TemperatureC != null) model.TemperatureC = (int)this.TemperatureC;
-        if (this.Summary != null) model.Summary = this.Summary;
-        return model;
-    }
-}
+public record WeatherForecastUpdateDTO(int Temperature) { }
 
 public record WeatherForecastCreateDTO(
     DateOnly Date,
     int TemperatureC,
     string Summary
 )
-{
-    public WeatherForecast ToModel()
-    {
-        return new WeatherForecast()
-        {
-            Date = this.Date,
-            TemperatureC = this.TemperatureC,
-            Summary = this.Summary,
-        };
-    }
-}
+{ }
+
+
+public record WeatherForecastCreateResponseDTO(int Id) { }

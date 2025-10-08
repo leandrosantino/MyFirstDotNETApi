@@ -1,23 +1,24 @@
+using ApiTeste.Infra;
 using ApiTeste.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ApiTeste.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("weather-forecast")]
 public class WeatherForecastController : ControllerBase
 {
 
   [HttpPost]
-  public ActionResult<WeatherForecast> Create(WeatherForecastCreateDTO data)
+  public ActionResult<WeatherForecastCreateResponseDTO> Create(WeatherForecastCreateDTO data)
   {
     try
     {
-      using var db = new MyDbContext();
-      var model = data.ToModel();
+      using var db = new Database();
+      WeatherForecast model = new(data);
       db.WeatherForecasts.Add(model);
       db.SaveChanges();
-      return StatusCode(201, model);
+      return StatusCode(201, new WeatherForecastCreateResponseDTO(model.Id));
     }
     catch (Exception e)
     {
@@ -26,19 +27,16 @@ public class WeatherForecastController : ControllerBase
   }
 
   [HttpPut("{id}")]
-  public ActionResult<WeatherForecast> Update(int id, WeatherForecastUpdateDTO updateData)
+  public ActionResult<WeatherForecast> Update(int id, WeatherForecast updateData)
   {
     try
     {
-      using var db = new MyDbContext();
+      using var db = new Database();
       var data = db.WeatherForecasts.Where(p => p.Id == id).FirstOrDefault();
       if (data == null) return NotFound();
 
-      updateData.MergeModel(data);
-
       db.WeatherForecasts.Update(data);
       db.SaveChanges();
-
 
       return Ok(data);
     }
@@ -48,12 +46,35 @@ public class WeatherForecastController : ControllerBase
     }
   }
 
+
+  [HttpPatch("{id}/temperature")]
+  public ActionResult<WeatherForecast> UpdateTemperature(int id, WeatherForecastUpdateDTO updateData)
+  {
+    try
+    {
+      using var db = new Database();
+      var data = db.WeatherForecasts.Where(p => p.Id == id).FirstOrDefault();
+      if (data == null) return NotFound();
+      data.TemperatureC = updateData.Temperature;
+      db.WeatherForecasts.Update(data);
+      db.SaveChanges();
+
+      return Ok(data);
+    }
+    catch (Exception e)
+    {
+      return StatusCode(500, new { error = e.Message, detais = "123" });
+    }
+  }
+
+
+
   [HttpDelete("{Id}")]
   public ActionResult<WeatherForecast> Delete(int Id)
   {
     try
     {
-      using var db = new MyDbContext();
+      using var db = new Database();
 
       var entity = db.WeatherForecasts.Find(Id);
       if (entity == null) return NotFound();
@@ -74,7 +95,7 @@ public class WeatherForecastController : ControllerBase
   {
     try
     {
-      using var db = new MyDbContext();
+      using var db = new Database();
       var data = db.WeatherForecasts.Where(p => p.Id == id).FirstOrDefault();
       if (data == null) return NotFound();
 
@@ -91,7 +112,7 @@ public class WeatherForecastController : ControllerBase
   {
     try
     {
-      using var db = new MyDbContext();
+      using var db = new Database();
       var data = db.WeatherForecasts.ToList();
       return Ok(data);
     }

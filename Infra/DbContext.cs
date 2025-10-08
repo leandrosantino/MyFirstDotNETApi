@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using ApiTeste.Models;
 
-namespace ApiTeste;
+namespace ApiTeste.Infra;
 
-public class MyDbContext : DbContext
+public class Database : DbContext
 {
     public DbSet<Customer> Customers { get; set; }
     public DbSet<WeatherForecast> WeatherForecasts { get; set; }
